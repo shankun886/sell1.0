@@ -1,4 +1,5 @@
 <template>
+<transition name="fade">
 	<div v-show="showFlag" class="food" ref="food">
 		<div class="food-content">
 			<div class="image-header">
@@ -17,11 +18,13 @@
 					<span class="old" v-show="food.oldPrice">￥{{food.oldPrice}}</span>
 				</div>
 				<div class="cartcontrol-wrapper">
-				<cartcontrol :food="food"></cartcontrol>
+					<cartcontrol :food="food"></cartcontrol>
 				</div>
+			<transition name="buy">
 				<div @click.stop.prevent="addFirst(food,$event)" class="buy" v-show="!food.count||food.count===0">加入购物车</div>
+			</transition>
 			</div>
-			<split v-show="food.info"></split>
+			<split></split>
 			<div class="info" v-show="food.info">
 				<h1 class="title">商品信息</h1>
 				<p class="text">{{food.info}}</p>
@@ -29,7 +32,7 @@
 			<split></split>
 			<div class="rating">
 				<h1 class="title">商品评价</h1>
-				<ratingselect @content.toggle="contenttoggle" @ratingtype.select="ratingtypeselect" :select-type="selectType" :only-content="onlyContent" :desc="desc" :ratings="food.ratings"></ratingselect>
+				<ratingselect @select="select" @toggle-content="toggleContent" :select-type="selectType" :only-content="onlyContent" :desc="desc" :ratings="food.ratings"></ratingselect>
 				<div class="rating-wrapper">
 					<ul v-show="food.ratings&&food.ratings.length">
 						<li v-show="needShow(rating.rateType,rating.text)" v-for="rating in food.ratings" class="rating-item border-1px">
@@ -37,26 +40,26 @@
 								<span class="name">{{rating.username}}</span>
 								<img class="avatar" width="12" height="12" :src="rating.avatar">
 							</div>
-							<div class="time">{{rating.rateTime}}</div>
+							<div class="time">{{rating.rateTime | formatDate}}</div>
 							<p class="text">
 								<span :class="{'icon-thumb_up':rating.rateType===0,'icon-thumb_down':rating.rateType===1}"></span>{{rating.text}}
 							</p>
 						</li>
 					</ul>
-					<div class="no-rating" v-show="!food.ratings||!food.ratings.length"></div>
+					<div class="no-rating" v-show="!food.ratings||!food.ratings.length">暂无评价</div>
 				</div>
 			</div>
 		</div>
 	</div>
+	</transition>
 </template>
-<script type="text/javascript">
+<script type="text/ecmascript-6">
 	import BScroll from 'better-scroll';
 	import Vue from 'Vue';
 	import cartcontrol from '../cartcontrol/cartcontrol.vue';
 	import ratingselect from '../ratingselect/ratingselect.vue';
-	import split from '../split/split.vue'
-	const POSITIVE=0;
-	const NEGATIVE=1;
+	import split from '../split/split.vue';
+	import {formatDate} from '../../common/js/date';
 	const ALL=2;
 	export default{
 		props:{
@@ -66,18 +69,18 @@
 		},
 		data(){
 			return {
-				showFlag:true,
+				showFlag:false,
 				selectType:ALL,
-				onlyContent:false,
+				onlyContent:true,
 				desc:{
 					all:'全部',
 					positive:'推荐',
 					negative:'吐槽'
 				}
-			}
+			};
 		},
 		methods:{
-			_show(){//父组件可以调用子组件的方法，反之不行
+			show(){
 				this.showFlag=true;
 				this.selectType=ALL;
 				this.onlyContent=true;
@@ -89,7 +92,7 @@
 					}else{
 						this.scroll.refresh();
 					}
-				})
+				});
 			},
 			hide(){
 				this.showFlag=false;
@@ -110,17 +113,25 @@
 					return type ===this.selectType;
 				}
 			},
-			ratingselect(type){
+			select(type){
 				this.selectType=type;
-			},
-			contenttoggle(onlyContent){
-				this.onlyContent = onlyContent;
 				this.$nextTick(()=>{
 					this.scroll.refresh();
-				});
-							}
+				})	
+			},
+			toggleContent(){
+				this.onlyContent=!this.onlyContent;
+				this.$nextTick(()=>{
+					this.scroll.refresh();
+				})
+			}
 		},
-
+		filters:{
+			formatDate(time){
+				let date=new Date(time);
+				return formatDate(date,'yyyy-MM-dd hh:mm');
+			}
+		},
 		components:{
 			cartcontrol,
 			split,
@@ -138,7 +149,12 @@
 		z-index:30
 		width:100%
 		background:#fff
-		.image-header
+		&.fade-enter-active,&.fade-leave-active
+			transition:all .2s linear
+		&.fade-enter,&.fade-leave-active
+			opacity:0
+			transform:translate3d(100%,0,0)
+	    .image-header
 			position:relative
 			width:100%
 			height:0
@@ -174,6 +190,7 @@
 				height:10px
 				.sell-count,.rating
 					font-size:10px
+					display:inline-block
 					color:rgb(147,153,159)
 				.sell-count
 					margin-right:12px
@@ -205,6 +222,11 @@
 				border-radius:12px
 				color:#fff
 				background:rgb(0,160,220)
+				&.buy-transition
+					transition:all 0.2s
+					opacity:1
+				&.buy-enter,&.buy-leave
+					opacity:0
 		.info
 			padding:18px
 			.title
@@ -261,8 +283,8 @@
 							color:rgb(0,160,220)
 						.icon-thumb_down
 							color:rgb(147,153,159)
-
-
-
-
-</style>
+				.no-rating
+					padding:16px 0
+					font-size:12px
+					color:rgb(147,153,159)
+</style> 

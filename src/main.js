@@ -15,7 +15,6 @@ Vue.use(VueResource);
 
 var router = new VueRouter({
 	linkActiveClass:'active',
-	mode:'history',
   	routes: [
     { path: '/goods', component: goods },
     { path:'/ratings', component:ratings},
@@ -28,4 +27,4 @@ new Vue({
   template: '<App/>',
   components: { App }
 })
-router.push('goods')   //导向特殊页面,刚开始指定的页面,go方法改变已被用作前进后退
+//router.push('goods')   //导向特殊页面,刚开始指定的页面,go方法改变已被用作前进后退

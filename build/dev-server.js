@@ -21,6 +21,7 @@ var autoOpenBrowser = !!config.dev.autoOpenBrowser
 var proxyTable = config.dev.proxyTable
 
 var app = express()
+
 var appData = require('../data.json');
 var seller=appData.seller;    //获取data.json中的商家数据
 var goods=appData.goods;      //商品数据

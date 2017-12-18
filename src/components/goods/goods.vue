@@ -1,5 +1,4 @@
 <template>
-<div>
 	<div class="goods">
 		<div class="menu-wrapper menuwrapper">
 			<ul>
@@ -16,13 +15,13 @@
 					<h1 class="title">{{item.name}}</h1>
 					<ul>
 						<li @click="selectFood(food,$event)" v-for="food in item.foods" class="food-item border-1px">
-							<div class="food.icon">
+							<div class="icon">
 								<img width="57" height="57" :src="food.icon">
 							</div>
 							<div class="content">
 								<h2 class="name">{{food.name}}</h2>
 								<p class="desc">{{food.description}}</p>
-								<div>
+								<div class="extra">
 									<span class="count">月售{{food.sellCount}}份</span>
 									<span>好评率{{food.rating}}%</span>
 								</div>
@@ -39,9 +38,10 @@
 				</li>
 			</ul>
 		</div>
-		<shopcart ref="shopcart" :select-foods="selectFoods" :deliver-price="seller.deliverPrice" :min-price="seller.minPrice"></shopcart>
-	</div>
-	<food :food="selectedFood" ref="food"></food>
+		<div>
+			<shopcart ref="shopcart" :select-foods="selectFoods" :deliver-price="seller.deliverPrice" :min-price="seller.minPrice"></shopcart>
+			<food :food="selectedFood" ref="food"></food>
+		</div>
 	</div>
 </template>
 
@@ -98,7 +98,7 @@
  		},
  		selectFood(food,event){
  			this.selectedFood=food;
- 			this.$refs.food._show();
+ 			this.$refs.food.show();
  		},
  		selectMenu(index,event){
  			if (!event._constructed) {
@@ -232,6 +232,7 @@
 					margin-right:10px
 				.content
 					flex:1
+					padding:0 18px
 					.name
 						margin:2px 0 8px 0
 						height:14px
